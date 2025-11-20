@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using JwtAuthApi.Dtos.Orders;
+using JwtAuthApi.Dtos.SellerAnalytics;
 using JwtAuthApi.Helpers.HelperObjects;
 using JwtAuthApi.Interfaces;
 using JwtAuthApi.Models;
@@ -14,6 +15,7 @@ namespace JwtAuthApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Seller")]
     public class SellerAnalyticsController : ControllerBase
     {
         private readonly ISellerAnalyticsRepository _sellerAnalyticsRepo;
@@ -24,7 +26,6 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("seller-orders")]
-        [Authorize(Roles = "Seller")]
         public async Task<ActionResult<List<OrderDto>>> GetSellerOrders([FromQuery] MyOrdersQuery queryObject)
         {
             var result = await _sellerAnalyticsRepo.GetSellerOrdersAsync(queryObject, GetSellerId());
@@ -35,7 +36,6 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("top-items")]
-        [Authorize(Roles = "Seller")]
         public async Task<IActionResult> GetTopSellingItems([FromQuery] int limit = 10)
         {
             var result = await _sellerAnalyticsRepo.GetTopSellingItemsAsync(limit, GetSellerId());
@@ -49,6 +49,16 @@ namespace JwtAuthApi.Controllers
         public async Task<IActionResult> GetDashboardStats()
         {
             var result = await _sellerAnalyticsRepo.GetDashboardStatsAsync(GetSellerId());
+            if (!result.IsSuccess)
+                return StatusCode(result.Error!.ErrCode, new { message = result.Error.ErrDescription });
+
+            return Ok(result.Value);
+        }
+
+        [HttpGet("statistics")]
+        public async Task<ActionResult<OrderStatistics>> GetOrderStatistics()
+        {
+            var result = await _sellerAnalyticsRepo.GetOrderStatistics(GetSellerId());
             if (!result.IsSuccess)
                 return StatusCode(result.Error!.ErrCode, new { message = result.Error.ErrDescription });
 

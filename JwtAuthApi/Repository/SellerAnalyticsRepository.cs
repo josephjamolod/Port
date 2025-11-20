@@ -223,5 +223,38 @@ namespace JwtAuthApi.Repository
                 });
             }
         }
+
+        public async Task<OperationResult<OrderStatistics, ErrorResult>> GetOrderStatistics(string userId)
+        {
+            try
+            {
+                var orders = await _context.Orders
+                   .Where(o => o.SellerId == userId)
+                   .ToListAsync();
+
+                var stats = new OrderStatistics
+                {
+                    TotalOrders = orders.Count,
+                    PendingOrders = orders.Count(o => o.Status == OrderStatus.Pending),
+                    ConfirmedOrders = orders.Count(o => o.Status == OrderStatus.Confirmed),
+                    PreparingOrders = orders.Count(o => o.Status == OrderStatus.Preparing),
+                    ReadyOrders = orders.Count(o => o.Status == OrderStatus.Ready),
+                    OutForDeliveryOrders = orders.Count(o => o.Status == OrderStatus.OutForDelivery),
+                    DeliveredOrders = orders.Count(o => o.Status == OrderStatus.Delivered),
+                    CancelledOrders = orders.Count(o => o.Status == OrderStatus.Cancelled),
+                    TotalRevenue = orders.Where(o => o.Status == OrderStatus.Delivered).Sum(o => o.Total),
+                    AverageOrderValue = orders.Count != 0 ? orders.Average(o => o.Total) : 0
+                };
+                return OperationResult<OrderStatistics, ErrorResult>.Success(stats);
+            }
+            catch (Exception)
+            {
+                return OperationResult<OrderStatistics, ErrorResult>.Failure(new ErrorResult()
+                {
+                    ErrCode = StatusCodes.Status500InternalServerError,
+                    ErrDescription = "Error retrieving analytics"
+                });
+            }
+        }
     }
 }

@@ -13,5 +13,6 @@ namespace JwtAuthApi.Interfaces
         Task<OperationResult<PaginatedResponse<OrderDto>, ErrorResult>> GetSellerOrdersAsync(MyOrdersQuery queryObject, string sellerId);
         Task<OperationResult<object, ErrorResult>> GetTopSellingItemsAsync(int limit, string sellerId);
         Task<OperationResult<DashboardStatsResponseDto, ErrorResult>> GetDashboardStatsAsync(string sellerId);
+        Task<OperationResult<OrderStatistics, ErrorResult>> GetOrderStatistics(string userId);
     }
 }
