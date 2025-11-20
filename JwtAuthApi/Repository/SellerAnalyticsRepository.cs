@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JwtAuthApi.Data;
 using JwtAuthApi.Dtos.Orders;
+using JwtAuthApi.Dtos.SellerAnalytics;
 using JwtAuthApi.Helpers.HelperObjects;
 using JwtAuthApi.Helpers.QueryBuilders;
 using JwtAuthApi.Interfaces;
@@ -129,6 +130,96 @@ namespace JwtAuthApi.Repository
                 {
                     ErrCode = StatusCodes.Status500InternalServerError,
                     ErrDescription = "Something Went Wrong Retrieving Items"
+                });
+            }
+        }
+
+        public async Task<OperationResult<DashboardStatsResponseDto, ErrorResult>> GetDashboardStatsAsync(string sellerId)
+        {
+            try
+            {
+                var today = DateTime.UtcNow.Date;
+                var thisMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+
+                // Today's stats
+                var todayOrders = await _context.Orders
+                    .Where(o => o.SellerId == sellerId && o.CreatedAt >= today)
+                    .ToListAsync();
+
+                var todayRevenue = todayOrders
+                    .Where(o => o.Status == OrderStatus.Delivered)
+                    .Sum(o => o.Total);
+
+                // This month's stats
+                var monthOrders = await _context.Orders
+                    .Where(o => o.SellerId == sellerId && o.CreatedAt >= thisMonth)
+                    .ToListAsync();
+
+                var monthRevenue = monthOrders
+                    .Where(o => o.Status == OrderStatus.Delivered)
+                    .Sum(o => o.Total);
+
+                // Pending orders
+                var pendingOrders = await _context.Orders
+                    .CountAsync(o => o.SellerId == sellerId &&
+                                     (o.Status == OrderStatus.Pending ||
+                                      o.Status == OrderStatus.Confirmed ||
+                                      o.Status == OrderStatus.Preparing));
+
+                // Total items
+                var totalItems = await _context.FoodItems
+                    .CountAsync(f => f.SellerId == sellerId);
+
+                var availableItems = await _context.FoodItems
+                    .CountAsync(f => f.SellerId == sellerId && f.IsAvailable);
+
+                // Total customers
+                var totalCustomers = await _context.Orders
+                    .Where(o => o.SellerId == sellerId)
+                    .Select(o => o.CustomerId)
+                    .Distinct()
+                    .CountAsync();
+
+                // Average rating
+                var averageRating = await _context.Reviews
+                    .Where(r => r.SellerId == sellerId)
+                    .AverageAsync(r => (decimal?)r.Rating) ?? 0;
+
+                var totalReviews = await _context.Reviews
+                    .CountAsync(r => r.SellerId == sellerId);
+
+                var dashboardStats = new DashboardStatsResponseDto()
+                {
+                    Today = new Today()
+                    {
+                        Orders = todayOrders.Count,
+                        TodayRevenue = todayRevenue,
+                        Pending = todayOrders.Count(o => o.Status == OrderStatus.Pending)
+                    },
+                    ThisMonth = new ThisMonth()
+                    {
+                        MonthOrders = monthOrders.Count,
+                        MonthRevenue = monthRevenue,
+                    },
+                    Overview = new Overview()
+                    {
+                        PendingOrders = pendingOrders,
+                        TotalItems = totalItems,
+                        AvailableItems = availableItems,
+                        TotalCustomers = totalCustomers,
+                        AverageRating = averageRating,
+                        TotalReviews = totalReviews
+                    }
+                };
+
+                return OperationResult<DashboardStatsResponseDto, ErrorResult>.Success(dashboardStats);
+            }
+            catch (Exception)
+            {
+                return OperationResult<DashboardStatsResponseDto, ErrorResult>.Failure(new ErrorResult()
+                {
+                    ErrCode = StatusCodes.Status500InternalServerError,
+                    ErrDescription = "Error retrieving analytics"
                 });
             }
         }
