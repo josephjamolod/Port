@@ -114,5 +114,22 @@ namespace JwtAuthApi.Controllers
 
             return Ok(result.Value);
         }
+
+        // DELETE: api/Order/{id}
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Seller")]
+        public async Task<IActionResult> DeleteOrder(int id)
+        {
+            var result = await _orderRepo.DeleteOrderAsync(id);
+
+            if (!result.IsSuccess)
+            {
+                if (result.Error!.ErrCode == 403)
+                    return Forbid();
+                return StatusCode(result.Error!.ErrCode, new { message = result.Error.ErrDescription });
+            }
+
+            return Ok(result.Value);
+        }
     }
 }

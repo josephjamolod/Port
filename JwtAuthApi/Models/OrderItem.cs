@@ -20,7 +20,6 @@ namespace JwtAuthApi.Models
         [StringLength(200)]
         public string? SpecialInstructions { get; set; }
 
-
         // Foreign Key that connect each orderItem to a Order
         [Required]
         public int OrderId { get; set; }

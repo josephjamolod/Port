@@ -375,6 +375,38 @@ namespace JwtAuthApi.Repository
             }
         }
 
+        public async Task<OperationResult<object, ErrorResult>> DeleteOrderAsync(int orderId)
+        {
+            try
+            {
+                var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+                if (order == null)
+                    return OperationResult<object, ErrorResult>.Failure(new ErrorResult()
+                    {
+                        ErrCode = StatusCodes.Status404NotFound,
+                        ErrDescription = "Order not found"
+                    });
+                // return NotFound(new { message = "Order not found" });
+
+                _context.OrderItems.RemoveRange(order.OrderItems);
+                _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
+
+                return OperationResult<object, ErrorResult>.Success(new { message = "Order deleted successfully" });
+            }
+            catch (Exception)
+            {
+                return OperationResult<object, ErrorResult>.Failure(new ErrorResult()
+                {
+                    ErrCode = StatusCodes.Status500InternalServerError,
+                    ErrDescription = "Something Went Wrong Deleting order "
+                });
+            }
+        }
+
         private static string GenerateOrderNumber()
         {
             var date = DateTime.UtcNow.ToString("yyyyMMdd");
