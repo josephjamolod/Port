@@ -128,6 +128,7 @@ builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IFoodItemRespository, FoodItemRespository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ISellerAnalyticsRepository, SellerAnalyticsRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 //Register background service for token cleanup
 builder.Services.AddHostedService<TokenCleanupService>();
