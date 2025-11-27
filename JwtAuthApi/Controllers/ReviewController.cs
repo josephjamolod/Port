@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using JwtAuthApi.Dtos.Reviews;
 using JwtAuthApi.Helpers.HelperObjects;
 using JwtAuthApi.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -22,6 +24,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Get reviews with optional filters [Can also get seller raview alone, foodItem alone, or foodItem belongs to the seller] (ALL USER)")]
         public async Task<IActionResult> GetReviews([FromQuery] ReviewQuery query)
         {
             var result = await _reviewRepo.GetReviewsAsync(query);
@@ -29,6 +32,21 @@ namespace JwtAuthApi.Controllers
                 return StatusCode(result.Error!.ErrCode, new { message = result.Error.ErrDescription });
 
             return Ok(result.Value);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [SwaggerOperation(Summary = "Create a review for delivered order [Can Be also use to raview the seller/restaurant ] (CUSTOMER)")]
+        public async Task<IActionResult> CreateReview(CreateReviewRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _reviewRepo.CreateReviewAsync(request, GetUserId());
+            if (!result.IsSuccess)
+                return StatusCode(result.Error!.ErrCode, new { message = result.Error.ErrDescription });
+
+            return CreatedAtAction(nameof(GetReviews), result.Value);
         }
     }
 }
