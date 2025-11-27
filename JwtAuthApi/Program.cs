@@ -1,4 +1,5 @@
 //this is the builder, this going to controll things like dependency injection, provides services
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using JwtAuthApi.Data;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +36,7 @@ builder.Services.AddSwaggerGen(option =>
     });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = @"JWT Authorization header using the Bearer scheme. 
+        Description = @"JWT Authorization header using the Bearer scheme.
                       Enter 'Bearer' [space] and then your token in the text input below.
                       Example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'",
         Name = "Authorization",
@@ -59,6 +61,14 @@ builder.Services.AddSwaggerGen(option =>
             new List<string>()
         }
     });
+
+    // Include XML comments for Swagger documentation
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    option.IncludeXmlComments(xmlPath);
+
+    // Enable annotations
+    option.EnableAnnotations();
 });
 
 // 1. CONFIGURE DATABASE
