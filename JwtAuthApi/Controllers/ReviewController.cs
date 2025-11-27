@@ -48,5 +48,17 @@ namespace JwtAuthApi.Controllers
 
             return CreatedAtAction(nameof(GetReviews), result.Value);
         }
+
+        [HttpGet("low-rated")]
+        [Authorize(Roles = "Seller")]
+        [SwaggerOperation(Summary = "Get Low Rated Reviews (SELLER)")]
+        public async Task<IActionResult> GetLowRatedReviews([FromQuery] LowRatedReviewQuery query)
+        {
+            var result = await _reviewRepo.GetLowRatedReviewsAsync(query, GetUserId());
+            if (!result.IsSuccess)
+                return StatusCode(result.Error!.ErrCode, new { message = result.Error.ErrDescription });
+
+            return Ok(result.Value);
+        }
     }
 }

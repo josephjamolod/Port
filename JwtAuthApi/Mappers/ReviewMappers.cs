@@ -30,5 +30,23 @@ namespace JwtAuthApi.Mappers
                 CreatedAt = review.CreatedAt
             };
         }
+
+        public static LowRatedReview ReviewToLowRatedReview(this Review r)
+        {
+            return new LowRatedReview()
+            {
+                Id = r.Id,
+                Customer = new ReviewCustomer
+                {
+                    Name = $"{r.Customer.FirstName} {r.Customer.LastName}",
+                    Email = r.Customer.Email ?? ""
+                },
+                OrderNumber = r.Order.OrderNumber,
+                FoodItem = r.FoodItem != null ? r.FoodItem.Name : "General Review",
+                Rating = r.Rating,
+                Comment = r.Comment ?? "",
+                CreatedAt = r.CreatedAt
+            };
+        }
     }
 }

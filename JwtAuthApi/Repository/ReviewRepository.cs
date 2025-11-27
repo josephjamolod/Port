@@ -33,12 +33,18 @@ namespace JwtAuthApi.Repository
 
                 // Apply filters
                 query = ReviewQueryBuilder.ApplyFilters(query, queryObject);
+                // Apply sorting
+                if (queryObject.IsDescending)
+                    query = query.OrderByDescending(r => r.Rating);
+                else
+                    query = query.OrderBy(r => r.Rating);
 
+                // Pagination
+                var skip = (queryObject.PageNumber - 1) * queryObject.PageSize;
                 var totalReviews = await query.CountAsync();
 
                 var reviews = await query
-                 .OrderByDescending(r => r.CreatedAt)
-                 .Skip((queryObject.PageNumber - 1) * queryObject.PageSize)
+                 .Skip(skip)
                  .Take(queryObject.PageSize)
                  .Select(r => r.ReviewToReviewResponse())
                  .ToListAsync();
@@ -168,6 +174,51 @@ namespace JwtAuthApi.Repository
                 {
                     ErrCode = StatusCodes.Status500InternalServerError,
                     ErrDescription = "Something Went Wrong Creating Review"
+                });
+            }
+        }
+
+        public async Task<OperationResult<PaginatedResponse<LowRatedReview>, ErrorResult>> GetLowRatedReviewsAsync(LowRatedReviewQuery queryObject, string sellerId)
+        {
+            try
+            {
+                var query = _context.Reviews
+                                 .Include(r => r.Customer)
+                                 .Include(r => r.FoodItem)
+                                 .Include(r => r.Order)
+                                 .Where(r => r.SellerId == sellerId && r.Rating <= 2);
+
+                // Filter by food item if provided
+                if (queryObject.FoodItemId.HasValue)
+                    query = query.Where(r => r.FoodItemId == queryObject.FoodItemId.Value);
+
+                // Order by most recent
+                query = query.OrderByDescending(r => r.CreatedAt);
+
+                // Pagination
+                var skip = (queryObject.PageNumber - 1) * queryObject.PageSize;
+                var totalReviews = await query.CountAsync();
+
+                var lowRatedReviews = await query
+                                 .Skip(skip)
+                                 .Take(queryObject.PageSize)
+                                 .Select(r => r.ReviewToLowRatedReview())
+                                 .ToListAsync();
+
+                return OperationResult<PaginatedResponse<LowRatedReview>, ErrorResult>.Success(new PaginatedResponse<LowRatedReview>()
+                {
+                    Total = totalReviews,
+                    PageNumber = queryObject.PageNumber,
+                    PageSize = queryObject.PageSize,
+                    Items = lowRatedReviews
+                });
+            }
+            catch (Exception)
+            {
+                return OperationResult<PaginatedResponse<LowRatedReview>, ErrorResult>.Failure(new ErrorResult()
+                {
+                    ErrCode = StatusCodes.Status500InternalServerError,
+                    ErrDescription = "Error retrieving reviews"
                 });
             }
         }
