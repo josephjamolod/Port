@@ -9,6 +9,7 @@ using JwtAuthApi.Interfaces;
 using JwtAuthApi.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -26,6 +27,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPost("checkout-selected")]
+        [SwaggerOperation(Summary = "Create an order from cart from selected sellers (User, Seller)")]
         public async Task<ActionResult<CheckoutSelectedResponse>> CheckoutSelectedSellers(CheckoutSelectedRequest request)
         {
             if (!ModelState.IsValid)
@@ -53,6 +55,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerOperation(Summary = "Get Order by ID (User, Seller)")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
             var userId = GetUserId();
@@ -69,6 +72,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPost("buy-now")]
+        [SwaggerOperation(Summary = "Direct order/Buy 1 item directly (User, Seller)")]
         public async Task<ActionResult<OrderDto>> BuyNow(BuyNowRequest request)
         {
             if (!ModelState.IsValid)
@@ -82,6 +86,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("my-orders")]
+        [SwaggerOperation(Summary = "Get current User Orders (User, Seller)")]
         public async Task<ActionResult<List<OrderDto>>> GetMyOrders([FromQuery] MyOrdersQuery queryObject)
         {
             var result = await _orderRepo.GetMyOrdersAsync(queryObject, GetUserId());
@@ -92,6 +97,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPut("{id}/status")]
+        [SwaggerOperation(Summary = "Update order status [Customers can only cancel,Sellers can update their own orders, Admin can do everything] (All User)")]
         public async Task<IActionResult> UpdateOrderStatus(int id, UpdateOrderStatusRequest request)
         {
             var props = new UpdateOrderStatusParams()
@@ -118,6 +124,7 @@ namespace JwtAuthApi.Controllers
         // DELETE: api/Order/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin,Seller")]
+        [SwaggerOperation(Summary = "Delete an order (Admin,Seller)")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
             var result = await _orderRepo.DeleteOrderAsync(id);

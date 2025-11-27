@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -32,6 +33,7 @@ namespace JwtAuthApi.Controllers
             _authRepo = authRepo;
         }
         [HttpPost("register-seller")]
+        [SwaggerOperation(Summary = "Register As Seller (Seller)")]
         public async Task<IActionResult> RegisterSeller([FromBody] RegisterSellerDto model)
         {
             if (!ModelState.IsValid)
@@ -51,6 +53,7 @@ namespace JwtAuthApi.Controllers
             }
         }
         [HttpPost("register")]
+        [SwaggerOperation(Summary = "Create Customer Account (User)")]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
             if (!ModelState.IsValid)
@@ -72,6 +75,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("confirm-email")]
+        [SwaggerOperation(Summary = "Confirm Email After User Registration (User)")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailDto model)
         {
             if (!ModelState.IsValid)
@@ -91,8 +95,8 @@ namespace JwtAuthApi.Controllers
             }
         }
 
-        // Resend email confirmation link
         [HttpPost("resend-confirmation")]
+        [SwaggerOperation(Summary = "Resend email confirmation link (User)")]
         public async Task<IActionResult> ResendConfirmation([FromBody] ResendConfirmationDto model)
         {
             if (!ModelState.IsValid)
@@ -121,6 +125,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPost("login")]
+        [SwaggerOperation(Summary = "Login an account (ALL USER)")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
             if (!ModelState.IsValid)
@@ -156,8 +161,9 @@ namespace JwtAuthApi.Controllers
             }
         }
 
-        //Verify 2fa and complete the login process
+
         [HttpPost("verify-2fa")]
+        [SwaggerOperation(Summary = "Verify 2fa and complete the login process (ALL USER)")]
         public async Task<IActionResult> Verify2FA([FromBody] Verify2FADto model)
         {
             if (!ModelState.IsValid)
@@ -186,6 +192,7 @@ namespace JwtAuthApi.Controllers
 
         // RESEND 2FA CODE ENDPOINT 
         [HttpPost("resend-2fa-code")]
+        [SwaggerOperation(Summary = "RESEND 2FA CODE ENDPOINT  (ALL USER)")]
         public async Task<IActionResult> Resend2FACode([FromBody] Resend2FACodeDto model)
         {
             if (!ModelState.IsValid)
@@ -218,6 +225,7 @@ namespace JwtAuthApi.Controllers
 
         [HttpPost("enable-2fa")]
         [Authorize]
+        [SwaggerOperation(Summary = "ENABLE 2FA ENDPOINT  (ALL USER)")]
         public async Task<IActionResult> Enable2FA()
         {
             try
@@ -249,6 +257,7 @@ namespace JwtAuthApi.Controllers
 
         [HttpPost("disable-2fa")]
         [Authorize]
+        [SwaggerOperation(Summary = "DISABLE 2FA ENDPOINT  (ALL USER)")]
         public async Task<IActionResult> Disable2FA()
         {
             try
@@ -277,8 +286,8 @@ namespace JwtAuthApi.Controllers
             }
         }
 
-        /// Refresh expired access token using refresh token
         [HttpPost("refresh")]
+        [SwaggerOperation(Summary = "Refresh expired access token using refresh token  (ALL USER)")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto model)
         {
             if (!ModelState.IsValid)
@@ -305,6 +314,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPost("revoke")]
+        [SwaggerOperation(Summary = "Logout User/Revoke a token  (ALL USER)")]
         public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenDto model)
         {
             if (!ModelState.IsValid)
@@ -323,8 +333,8 @@ namespace JwtAuthApi.Controllers
             }
         }
 
-        /// Request password reset
         [HttpPost("forgot-password")]
+        [SwaggerOperation(Summary = "Request password reset(ALL USER)")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
         {
             if (!ModelState.IsValid)
@@ -350,9 +360,8 @@ namespace JwtAuthApi.Controllers
             }
         }
 
-        /// Reset password with token
-        /// 
         [HttpPost("reset-password")]
+        [SwaggerOperation(Summary = "Reset password with token(ALL USER)")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
         {
             if (!ModelState.IsValid)
@@ -377,7 +386,6 @@ namespace JwtAuthApi.Controllers
         // HELPER METHODS
         private async Task<string?> GenerateConfirmationLink(AppUser user, string token)
         {
-            // var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var confirmationLink = Url.Action(
                 nameof(ConfirmEmail),
                 "Auth",

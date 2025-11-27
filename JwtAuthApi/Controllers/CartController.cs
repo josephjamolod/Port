@@ -7,6 +7,7 @@ using JwtAuthApi.Dtos.Cart;
 using JwtAuthApi.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -22,6 +23,7 @@ namespace JwtAuthApi.Controllers
             _cartRepo = cartRepo;
         }
         [HttpPost("add")]
+        [SwaggerOperation(Summary = "Add an Item to cart (ALL USER)")]
         public async Task<ActionResult<CartItemDto>> AddToCart(AddToCartRequest model)
         {
             try
@@ -39,6 +41,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Get User Cart Items (ALL USER)")]
         public async Task<ActionResult<CartResponseDto>> GetCart()
         {
             var result = await _cartRepo.GetCartAsync(GetUserId());
@@ -49,8 +52,12 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPut("items/{id}")]
+        [SwaggerOperation(Summary = "Update a Cart Item (ALL USER)")]
         public async Task<IActionResult> UpdateCartItem(int id, UpdateCartItemRequest request)
         {
+            if (request.Quantity <= 0)
+                return BadRequest(new { message = "Quantity must be greater than 0" });
+
             var result = await _cartRepo.UpdateCartItemAsync(id, GetUserId(), request);
             if (!result.IsSuccess)
                 return StatusCode(result.Error!.ErrCode, new { message = result.Error.ErrDescription });
@@ -59,6 +66,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpDelete("items/{id}")]
+        [SwaggerOperation(Summary = "Remove a single Item in Cart (ALL USER)")]
         public async Task<IActionResult> RemoveItemFromCart(int id)
         {
             var result = await _cartRepo.RemoveItemFromCartAsync(id, GetUserId());
@@ -69,6 +77,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpDelete]
+        [SwaggerOperation(Summary = "Clear Cart Items (ALL USER)")]
         public async Task<IActionResult> ClearCart()
         {
             var result = await _cartRepo.ClearCartAsync(GetUserId());
@@ -78,8 +87,8 @@ namespace JwtAuthApi.Controllers
             return Ok(result.Value);
         }
 
-        // Allows CUSTOMERS to remove all items from a specific seller
         [HttpDelete("seller/{sellerId}")]
+        [SwaggerOperation(Summary = "Allows CUSTOMERS to remove all items from a specific seller (ALL USER)")]
         public async Task<IActionResult> ClearSellerCart(string sellerId)
         {
             var result = await _cartRepo.ClearSellerCartAsync(sellerId, GetUserId());
@@ -90,6 +99,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPost("validate/seller/{sellerId}")]
+        [SwaggerOperation(Summary = " Validate Items In Seller Cart (ALL USER)")]
         public async Task<ActionResult<CartValidationResult>> ValidateItemsInSellerCart(string sellerId)
         {
             var result = await _cartRepo.ValidateItemsInSellerCartAsync(sellerId, GetUserId());
@@ -100,6 +110,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPost("validate")]
+        [SwaggerOperation(Summary = " Validate All Items (ALL USER)")]
         public async Task<ActionResult<CartValidationResult>> ValidateCart()
         {
             var result = await _cartRepo.ValidateAllCartItemsAsync(GetUserId());

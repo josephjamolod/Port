@@ -149,15 +149,6 @@ namespace JwtAuthApi.Repository
                         ErrCode = StatusCodes.Status404NotFound,
                         ErrDescription = "Cart item not found"
                     });
-                // return NotFound(new { message = "Cart item not found" });
-
-                if (request.Quantity <= 0)
-                    return OperationResult<object, ErrorResult>.Failure(new ErrorResult()
-                    {
-                        ErrCode = StatusCodes.Status400BadRequest,
-                        ErrDescription = "Quantity must be greater than 0"
-                    });
-                // return BadRequest(new { message = "Quantity must be greater than 0" });
 
                 cartItem.Quantity = request.Quantity;
                 if (request.SpecialInstructions != null)

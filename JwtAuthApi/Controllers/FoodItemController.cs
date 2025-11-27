@@ -6,6 +6,7 @@ using JwtAuthApi.Dtos.Foods;
 using JwtAuthApi.Helpers.HelperObjects;
 using JwtAuthApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -20,6 +21,7 @@ namespace JwtAuthApi.Controllers
 
         }
         [HttpGet]
+        [SwaggerOperation(Summary = "Get All Food Items (ALL USER)")]
         public async Task<ActionResult> GetAllFoodItems([FromQuery] AllFoodsQuery queryObject)
         {
             try
@@ -34,6 +36,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [SwaggerOperation(Summary = "Get specific Food Item by ID (ALL USER)")]
         public async Task<IActionResult> GetFoodItemById([FromRoute] int id)
         {
             try
@@ -51,6 +54,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("featured")]
+        [SwaggerOperation(Summary = "Get Featured Items (ALL USER)")]
         public async Task<ActionResult<List<FoodResponseDto>>> GetFeaturedItems()
         {
             try
@@ -65,6 +69,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("seller/{sellerId}")]
+        [SwaggerOperation(Summary = "Get All food Items on seller (ALL USER)")]
         public async Task<IActionResult> GetSellerMenu([FromRoute] string sellerId, [FromQuery] AllFoodsQuery queryObject)
         {
             try

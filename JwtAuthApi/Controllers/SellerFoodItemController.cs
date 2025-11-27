@@ -12,6 +12,7 @@ using JwtAuthApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -30,6 +31,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Get Seller All Food Items (SELLER)")]
         public async Task<IActionResult> GetSellerAllFoodItems([FromQuery] AllFoodsQuery queryObject)
         {
             try
@@ -44,6 +46,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [SwaggerOperation(Summary = "Get Seller Food Item by ID (SELLER)")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             try
@@ -61,6 +64,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPost("create")]
+        [SwaggerOperation(Summary = "Create Seller Food Item (SELLER)")]
         public async Task<IActionResult> Create([FromBody] CreateFoodItemDto model)
         {
             if (!ModelState.IsValid)
@@ -87,6 +91,7 @@ namespace JwtAuthApi.Controllers
             }
         }
         [HttpPost("{id}/images")]
+        [SwaggerOperation(Summary = "Upload Maximum 5 Food Images (SELLER)")]
         public async Task<IActionResult> UploadFoodImages(
            int id,
            [FromForm] List<IFormFile> images,
@@ -113,6 +118,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpDelete("images/{imageId}")]
+        [SwaggerOperation(Summary = "Delete Food Image By ID (SELLER)")]
         public async Task<IActionResult> DeleteFoodImage(int imageId)
         {
             try
@@ -132,6 +138,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPatch("images/{imageId}/set-main")]
+        [SwaggerOperation(Summary = "Set Main Food Image (SELLER)")]
         public async Task<IActionResult> SetMainFoodImage(int imageId)
         {
             try
@@ -150,6 +157,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPatch("{id}/availability")]
+        [SwaggerOperation(Summary = "Toggle Food Availability (SELLER)")]
         public async Task<IActionResult> SetAvailability(int id, [FromBody] bool isAvailable)
         {
             try
@@ -169,6 +177,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [SwaggerOperation(Summary = "Update Food Item By Food ID [You can update such as name, price, etc] (SELLER)")]
         public async Task<IActionResult> UpdateFoodItem(int id, [FromBody] UpdateFoodItemDto model)
         {
             if (!ModelState.IsValid)
@@ -190,6 +199,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [SwaggerOperation(Summary = "Delete Food Item By FoodId (SELLER)")]
         public async Task<IActionResult> DeleteFoodItem(int id)
         {
             try

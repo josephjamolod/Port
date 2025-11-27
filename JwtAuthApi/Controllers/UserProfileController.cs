@@ -7,6 +7,7 @@ using JwtAuthApi.Dtos.User;
 using JwtAuthApi.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -22,6 +23,8 @@ namespace JwtAuthApi.Controllers
             _userRepo = userRepo;
         }
         [HttpGet("profile")]
+        [SwaggerOperation(Summary = "Get Current User Profile (All User)")]
+
         public async Task<IActionResult> GetUserProfile()
         {
             try
@@ -40,6 +43,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPost("update-profile")]
+        [SwaggerOperation(Summary = "Update Current User Profile (All User)")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto model)
         {
             if (!ModelState.IsValid)
@@ -59,6 +63,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpDelete]
+        [SwaggerOperation(Summary = "Delete Current User Account (All User)")]
         public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountDto model)
         {
             if (!ModelState.IsValid)

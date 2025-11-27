@@ -8,6 +8,7 @@ using JwtAuthApi.Dtos.Seller;
 using JwtAuthApi.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -26,6 +27,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("profile")]
+        [SwaggerOperation(Summary = "Get Seller Profile Info (SELLER)")]
         public async Task<IActionResult> GetSellerProfile()
         {
             try
@@ -45,6 +47,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPost("profile-update")]
+        [SwaggerOperation(Summary = "Update Seller Profile Info (SELLER)")]
         public async Task<IActionResult> UpdateSeller([FromBody] UpdateSellerProfileDto model)
         {
             if (!ModelState.IsValid)
@@ -63,6 +66,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpPatch("toggle-status")]
+        [SwaggerOperation(Summary = "Toggle Seller Active Status (SELLER)")]
         public async Task<IActionResult> ToggleStatus()
         {
             try
@@ -81,6 +85,8 @@ namespace JwtAuthApi.Controllers
 
         //todo: upload logo
         [HttpPost("logo")]
+        [SwaggerOperation(Summary = "Upload Logo for Seller endpoint (SELLER)")]
+
         public async Task<IActionResult> UploadLogo([FromForm] UploadLogoDto model)
         {
             var logo = model.File;

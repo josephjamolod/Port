@@ -10,6 +10,7 @@ using JwtAuthApi.Interfaces;
 using JwtAuthApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -26,6 +27,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("seller-orders")]
+        [SwaggerOperation(Summary = "Get Seller Orders from Customer (SELLER)")]
         public async Task<ActionResult<List<OrderDto>>> GetSellerOrders([FromQuery] MyOrdersQuery queryObject)
         {
             var result = await _sellerAnalyticsRepo.GetSellerOrdersAsync(queryObject, GetSellerId());
@@ -36,6 +38,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("top-items")]
+        [SwaggerOperation(Summary = "Get Top Selling Items (SELLER)")]
         public async Task<IActionResult> GetTopSellingItems([FromQuery] int limit = 10)
         {
             var result = await _sellerAnalyticsRepo.GetTopSellingItemsAsync(limit, GetSellerId());
@@ -46,6 +49,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("dashboard")]
+        [SwaggerOperation(Summary = "Get Dashboard Stats (SELLER)")]
         public async Task<IActionResult> GetDashboardStats()
         {
             var result = await _sellerAnalyticsRepo.GetDashboardStatsAsync(GetSellerId());
@@ -56,6 +60,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("statistics")]
+        [SwaggerOperation(Summary = "Get Orders Statistics (SELLER)")]
         public async Task<ActionResult<OrderStatistics>> GetOrderStatistics()
         {
             var result = await _sellerAnalyticsRepo.GetOrderStatistics(GetSellerId());

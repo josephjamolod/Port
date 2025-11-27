@@ -8,6 +8,7 @@ using JwtAuthApi.Helpers.HelperObjects;
 using JwtAuthApi.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace JwtAuthApi.Controllers
 {
@@ -25,6 +26,7 @@ namespace JwtAuthApi.Controllers
 
         [HttpPost("approve")]
         [Authorize(Roles = "Admin")]
+        [SwaggerOperation(Summary = "Approve Seller registered account(ADMIN)")]
         public async Task<IActionResult> ApproveSeller([FromBody] SellerApprovalDto model)
         {
             if (!ModelState.IsValid)
@@ -45,6 +47,7 @@ namespace JwtAuthApi.Controllers
         }
         [HttpGet("pending")]
         [Authorize(Roles = "Admin")]
+        [SwaggerOperation(Summary = "Get all pending sellers(ADMIN)")]
         public async Task<IActionResult> GetPendingSellers([FromQuery] PendingSellerQueryObj queryObject)
         {
             try
