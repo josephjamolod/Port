@@ -57,7 +57,9 @@ namespace JwtAuthApi.Mappers
                 TotalRatings = f.TotalRatings,
                 TotalSold = f.TotalSold,
                 CreatedAt = f.CreatedAt,
-                UpdatedAt = f.UpdatedAt
+                UpdatedAt = f.UpdatedAt,
+                SellerId = f.SellerId,
+                SellerBusinessName = f.Seller?.BusinessName
             }
             ;
         }

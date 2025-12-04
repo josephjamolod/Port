@@ -34,6 +34,7 @@ namespace JwtAuthApi.Repository
         public async Task<PaginatedResponse<FoodResponseDto>> GetSellerAllFoodItemsAsync(AllFoodsQuery queryObject, string sellerId)
         {
             var query = _context.FoodItems
+             .Include(f => f.Seller)
                   .Include(f => f.ImageUrls)
                   .Where(f => f.SellerId == sellerId);
 
@@ -75,6 +76,7 @@ namespace JwtAuthApi.Repository
                 return OperationResult<FoodResponseDto, string>.Failure("Seller Not Found");
 
             var foodItem = await _context.FoodItems
+             .Include(f => f.Seller)
                 .Include(f => f.ImageUrls)
                 .Include(f => f.Reviews)
                     .ThenInclude(r => r.Customer)

@@ -59,6 +59,7 @@ namespace JwtAuthApi.Repository
         public async Task<OperationResult<FoodResponseDto, string>> GetFoodItemByIdAsync(int foodId)
         {
             var foodItem = await _context.FoodItems
+                .Include(f => f.Seller)
                 .Include(f => f.ImageUrls)
                 .Include(f => f.Reviews)
                     .ThenInclude(r => r.Customer)
@@ -89,6 +90,7 @@ namespace JwtAuthApi.Repository
         public async Task<PaginatedResponse<FoodResponseDto>> GetSellerMenuAsync(AllFoodsQuery queryObject, string sellerId)
         {
             var query = _context.FoodItems
+                  .Include(f => f.Seller)
                   .Include(f => f.ImageUrls)
                   .Where(f => f.SellerId == sellerId);
 

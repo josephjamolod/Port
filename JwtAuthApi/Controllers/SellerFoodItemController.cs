@@ -46,7 +46,7 @@ namespace JwtAuthApi.Controllers
         }
 
         [HttpGet("{id:int}")]
-        [SwaggerOperation(Summary = "Get Seller Food Item by ID (SELLER)")]
+        [SwaggerOperation(Summary = "Get Seller Food Item by foodID (SELLER)")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             try
@@ -97,7 +97,7 @@ namespace JwtAuthApi.Controllers
            [FromForm] List<IFormFile> images,
            [FromForm] bool setFirstAsMain = true)
         {
-            if (images == null || images.Count != 0)
+            if (images == null || images.Count == 0)
                 return BadRequest(new { message = "No images uploaded" });
 
             // Validate max 5 images

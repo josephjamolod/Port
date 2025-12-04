@@ -29,5 +29,9 @@ namespace JwtAuthApi.Dtos.Foods
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 
+        // Seller information
+        public string SellerId { get; set; } = string.Empty;
+        public string? SellerBusinessName { get; set; }
+
     }
 }
