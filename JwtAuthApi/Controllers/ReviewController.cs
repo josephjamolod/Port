@@ -17,17 +17,18 @@ namespace JwtAuthApi.Controllers
     public class ReviewController : ControllerBase
     {
         private readonly IReviewRepository _reviewRepo;
-        private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+        private string? GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        private string? GetUserRole() => User.FindFirst(ClaimTypes.Role)?.Value;
         public ReviewController(IReviewRepository reviewRepo)
         {
             _reviewRepo = reviewRepo;
         }
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Get reviews with optional filters [Can also get seller raview alone, foodItem alone, or foodItem belongs to the seller] (ALL USER)")]
+        [SwaggerOperation(Summary = "Get reviews with optional filters [Non-admin: must filter by foodItemId or sellerId, Admin: all reviews] (ALL USER)")]
         public async Task<IActionResult> GetReviews([FromQuery] ReviewQuery query)
         {
-            var result = await _reviewRepo.GetReviewsAsync(query);
+            var result = await _reviewRepo.GetReviewsAsync(query, GetUserId(), GetUserRole());
             if (!result.IsSuccess)
                 return StatusCode(result.Error!.ErrCode, new { message = result.Error.ErrDescription });
 

@@ -21,10 +21,23 @@ namespace JwtAuthApi.Repository
             _context = context;
         }
 
-        public async Task<OperationResult<PaginatedResponse<ReviewResponse>, ErrorResult>> GetReviewsAsync(ReviewQuery queryObject)
+        public async Task<OperationResult<PaginatedResponse<ReviewResponse>, ErrorResult>> GetReviewsAsync(ReviewQuery queryObject, string? userId, string? userRole)
         {
             try
             {
+                // Role-based filtering enforcement
+                // Only admins can view all reviews without filtering
+                if (userRole != "Admin")
+                {
+                    // Non-admin users must filter by foodItemId or sellerId
+                    if (!queryObject.FoodItemId.HasValue && string.IsNullOrEmpty(queryObject.SellerId))
+                        return OperationResult<PaginatedResponse<ReviewResponse>, ErrorResult>.Failure(new ErrorResult()
+                        {
+                            ErrCode = StatusCodes.Status400BadRequest,
+                            ErrDescription = "You must filter by foodItemId or sellerId"
+                        });
+                }
+
                 var query = _context.Reviews
                          .Include(r => r.Customer)
                          .Include(r => r.FoodItem)

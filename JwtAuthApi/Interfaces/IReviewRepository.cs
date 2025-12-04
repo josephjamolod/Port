@@ -9,7 +9,7 @@ namespace JwtAuthApi.Interfaces
 {
     public interface IReviewRepository
     {
-        Task<OperationResult<PaginatedResponse<ReviewResponse>, ErrorResult>> GetReviewsAsync(ReviewQuery queryObject);
+        Task<OperationResult<PaginatedResponse<ReviewResponse>, ErrorResult>> GetReviewsAsync(ReviewQuery queryObject, string? userId, string? userRole);
         Task<OperationResult<object, ErrorResult>> CreateReviewAsync(CreateReviewRequest request, string customerId);
         Task<OperationResult<PaginatedResponse<LowRatedReview>, ErrorResult>> GetLowRatedReviewsAsync(LowRatedReviewQuery queryObject, string sellerId);
     }
