@@ -23,7 +23,7 @@ namespace JwtAuthApi.Helpers.HelperObjects
         [Column(TypeName = "decimal(10,2)")]
         public int Price { get; set; }
         public string? Category { get; set; } = null;
-        public bool IsAvailable { get; set; } = true;
+        public bool? IsAvailable { get; set; } = null;
         public int PreparationTime { get; set; } = 30; // In minutes
 
         public FoodsQueryOption? SortBy { get; set; } = null;
