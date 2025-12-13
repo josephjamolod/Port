@@ -24,7 +24,7 @@ namespace JwtAuthApi.Helpers.HelperObjects
         public int Price { get; set; }
         public string? Category { get; set; } = null;
         public bool? IsAvailable { get; set; } = null;
-        public int PreparationTime { get; set; } = 30; // In minutes
+        public int? PreparationTime { get; set; } = null; // In minutes (optional filter)
 
         public FoodsQueryOption? SortBy { get; set; } = null;
         public decimal Rating { get; set; } = 0;

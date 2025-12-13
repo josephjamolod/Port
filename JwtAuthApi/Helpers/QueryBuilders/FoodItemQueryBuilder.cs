@@ -27,7 +27,7 @@ namespace JwtAuthApi.Helpers.QueryBuilders
             if (queryObject.IsAvailable != null)
                 query = query.Where(f => f.IsAvailable == queryObject.IsAvailable);
 
-            if (queryObject.PreparationTime > 0)
+            if (queryObject.PreparationTime.HasValue && queryObject.PreparationTime > 0)
                 query = query.Where(f => f.PreparationTime <= queryObject.PreparationTime);
 
             if (queryObject.Rating > 0)
