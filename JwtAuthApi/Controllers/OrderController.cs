@@ -124,10 +124,10 @@ namespace JwtAuthApi.Controllers
         // DELETE: api/Order/{id}
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin,Seller")]
-        [SwaggerOperation(Summary = "Delete an order (Admin,Seller)")]
+        [SwaggerOperation(Summary = "Delete an order [Seller can only delete their own orders, Admin can delete any] (Admin,Seller)")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            var result = await _orderRepo.DeleteOrderAsync(id);
+            var result = await _orderRepo.DeleteOrderAsync(id, GetUserId(), IsInRole("Admin"));
 
             if (!result.IsSuccess)
             {

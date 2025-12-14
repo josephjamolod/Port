@@ -13,7 +13,7 @@ namespace JwtAuthApi.Helpers.HelperObjects
         [Column(TypeName = "decimal(10,2)")]
         public int Total { get; set; }
 
-        public OrderStatus? Status { get; set; } = OrderStatus.Pending;
+        public OrderStatus? Status { get; set; } = null;
         public DateTime? StartDate { get; set; } = null;
         public DateTime? EndDate { get; set; } = null;
         public bool IsDescending { get; set; } = false;

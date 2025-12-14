@@ -15,6 +15,6 @@ namespace JwtAuthApi.Interfaces
         Task<OperationResult<OrderDto, ErrorResult>> BuyNowAsync(BuyNowRequest request, string userId);
         Task<OperationResult<PaginatedResponse<OrderDto>, ErrorResult>> GetMyOrdersAsync(MyOrdersQuery queryObject, string userId);
         Task<OperationResult<object, ErrorResult>> UpdateOrderStatusAsync(UpdateOrderStatusParams prop);
-        Task<OperationResult<object, ErrorResult>> DeleteOrderAsync(int orderId);
+        Task<OperationResult<object, ErrorResult>> DeleteOrderAsync(int orderId, string userId, bool isAdmin);
     }
 }

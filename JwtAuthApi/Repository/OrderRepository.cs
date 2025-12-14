@@ -307,29 +307,40 @@ namespace JwtAuthApi.Repository
                 // Authorization checks
                 if (!prop.IsAdmin)
                 {
-                    // Customers can only cancel
-                    if (order.CustomerId == prop.UserId && prop.Status != OrderStatus.Cancelled)
-                        return OperationResult<object, ErrorResult>.Failure(new ErrorResult()
-                        {
-                            ErrCode = StatusCodes.Status403Forbidden,
-                            ErrDescription = "Forbidden"
-                        });
+                    bool isCustomerOfThisOrder = order.CustomerId == prop.UserId;
+                    bool isSellerOfThisOrder = order.SellerId == prop.UserId;
 
-                    // Sellers can update their own orders (except cancellation)
-                    if (prop.IsSeller && order.SellerId != prop.UserId)
+                    // Sellers can update orders they're selling (not orders they placed as customers)
+                    if (prop.IsSeller && isSellerOfThisOrder)
+                    {
+                        // Sellers cannot cancel orders, only update status
+                        if (prop.Status == OrderStatus.Cancelled)
+                            return OperationResult<object, ErrorResult>.Failure(new ErrorResult()
+                            {
+                                ErrCode = StatusCodes.Status403Forbidden,
+                                ErrDescription = "Sellers cannot cancel orders"
+                            });
+                        // Allow status updates for their own seller orders
+                    }
+                    // Customers (including sellers acting as customers) can only cancel
+                    else if (isCustomerOfThisOrder)
+                    {
+                        if (prop.Status != OrderStatus.Cancelled)
+                            return OperationResult<object, ErrorResult>.Failure(new ErrorResult()
+                            {
+                                ErrCode = StatusCodes.Status403Forbidden,
+                                ErrDescription = "Customers can only cancel orders"
+                            });
+                    }
+                    // Not related to this order at all
+                    else
+                    {
                         return OperationResult<object, ErrorResult>.Failure(new ErrorResult()
                         {
                             ErrCode = StatusCodes.Status403Forbidden,
-                            ErrDescription = "Forbidden"
+                            ErrDescription = "You are not authorized to update this order"
                         });
-
-                    // Non-sellers/non-customers cannot update
-                    if (order.CustomerId != prop.UserId && order.SellerId != prop.UserId)
-                        return OperationResult<object, ErrorResult>.Failure(new ErrorResult()
-                        {
-                            ErrCode = StatusCodes.Status403Forbidden,
-                            ErrDescription = "Forbidden"
-                        });
+                    }
                 }
 
                 // Validate status transitions
@@ -375,7 +386,7 @@ namespace JwtAuthApi.Repository
             }
         }
 
-        public async Task<OperationResult<object, ErrorResult>> DeleteOrderAsync(int orderId)
+        public async Task<OperationResult<object, ErrorResult>> DeleteOrderAsync(int orderId, string userId, bool isAdmin)
         {
             try
             {
@@ -389,7 +400,14 @@ namespace JwtAuthApi.Repository
                         ErrCode = StatusCodes.Status404NotFound,
                         ErrDescription = "Order not found"
                     });
-                // return NotFound(new { message = "Order not found" });
+
+                // Authorization: Only admin or the seller who owns this order can delete it
+                if (!isAdmin && order.SellerId != userId)
+                    return OperationResult<object, ErrorResult>.Failure(new ErrorResult()
+                    {
+                        ErrCode = StatusCodes.Status403Forbidden,
+                        ErrDescription = "You can only delete your own orders"
+                    });
 
                 _context.OrderItems.RemoveRange(order.OrderItems);
                 _context.Orders.Remove(order);
