@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JwtAuthApi.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20251107095128_IndexInFoodImage")]
-    partial class IndexInFoodImage
+    [Migration("20251212153805_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -89,9 +89,6 @@ namespace JwtAuthApi.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("LogoUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -157,6 +154,75 @@ namespace JwtAuthApi.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("JwtAuthApi.Models.Cart", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("LastActivityAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
+
+                    b.ToTable("Carts");
+                });
+
+            modelBuilder.Entity("JwtAuthApi.Models.CartItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CartId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FoodItemId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PriceSnapshot")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SpecialInstructions")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FoodItemId");
+
+                    b.HasIndex("CartId", "FoodItemId")
+                        .IsUnique();
+
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("JwtAuthApi.Models.FoodImage", b =>
@@ -248,6 +314,40 @@ namespace JwtAuthApi.Migrations
                     b.HasIndex("SellerId");
 
                     b.ToTable("FoodItems");
+                });
+
+            modelBuilder.Entity("JwtAuthApi.Models.Logo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SellerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id")
+                        .IsUnique();
+
+                    b.HasIndex("SellerId")
+                        .IsUnique();
+
+                    b.ToTable("Logos");
                 });
 
             modelBuilder.Entity("JwtAuthApi.Models.Order", b =>
@@ -604,6 +704,36 @@ namespace JwtAuthApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("JwtAuthApi.Models.Cart", b =>
+                {
+                    b.HasOne("JwtAuthApi.Models.AppUser", "Customer")
+                        .WithOne("Cart")
+                        .HasForeignKey("JwtAuthApi.Models.Cart", "CustomerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("JwtAuthApi.Models.CartItem", b =>
+                {
+                    b.HasOne("JwtAuthApi.Models.Cart", "Cart")
+                        .WithMany("CartItems")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("JwtAuthApi.Models.FoodItem", "FoodItem")
+                        .WithMany("CartItems")
+                        .HasForeignKey("FoodItemId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("FoodItem");
+                });
+
             modelBuilder.Entity("JwtAuthApi.Models.FoodImage", b =>
                 {
                     b.HasOne("JwtAuthApi.Models.FoodItem", "FoodItem")
@@ -626,18 +756,29 @@ namespace JwtAuthApi.Migrations
                     b.Navigation("Seller");
                 });
 
+            modelBuilder.Entity("JwtAuthApi.Models.Logo", b =>
+                {
+                    b.HasOne("JwtAuthApi.Models.AppUser", "Seller")
+                        .WithOne("Logo")
+                        .HasForeignKey("JwtAuthApi.Models.Logo", "SellerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Seller");
+                });
+
             modelBuilder.Entity("JwtAuthApi.Models.Order", b =>
                 {
                     b.HasOne("JwtAuthApi.Models.AppUser", "Customer")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("JwtAuthApi.Models.AppUser", "Seller")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("SellerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Customer");
@@ -650,7 +791,7 @@ namespace JwtAuthApi.Migrations
                     b.HasOne("JwtAuthApi.Models.FoodItem", "FoodItem")
                         .WithMany("OrderItems")
                         .HasForeignKey("FoodItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("JwtAuthApi.Models.Order", "Order")
@@ -762,7 +903,11 @@ namespace JwtAuthApi.Migrations
 
             modelBuilder.Entity("JwtAuthApi.Models.AppUser", b =>
                 {
+                    b.Navigation("Cart");
+
                     b.Navigation("FoodItems");
+
+                    b.Navigation("Logo");
 
                     b.Navigation("Orders");
 
@@ -771,8 +916,15 @@ namespace JwtAuthApi.Migrations
                     b.Navigation("Reviews");
                 });
 
+            modelBuilder.Entity("JwtAuthApi.Models.Cart", b =>
+                {
+                    b.Navigation("CartItems");
+                });
+
             modelBuilder.Entity("JwtAuthApi.Models.FoodItem", b =>
                 {
+                    b.Navigation("CartItems");
+
                     b.Navigation("ImageUrls");
 
                     b.Navigation("OrderItems");
